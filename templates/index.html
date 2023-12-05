@@ -78,6 +78,19 @@
                 // Once all the images have been seen and labeled, 
                 // build out the imagefolder with the new metadata
                 currentImage.src = './static/img/chimp.jpg'
+                fetch('/build_imagefolder',{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(metadata)
+                }).then(response => {
+                    if (response.ok) {
+                        console.log("Image folder updated.");
+                    } else {
+                        console.error("Failed to update image folder.")
+                    }
+                })
             }
         }
         // Add an event listener to the Next Image button

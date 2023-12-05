@@ -9,7 +9,7 @@ app = Flask(__name__)
 def index():
     # List image files in the 'img' folder (update the folder path if needed)
     image_folder = './static/img/target/'
-    image_files = [image_folder+f for f in os.listdir(image_folder) if f.endswith(('.jpg', '.png', '.jpeg'))]
+    image_files = [image_folder+f for f in os.listdir(image_folder)]# if f.endswith(('.jpg', '.png', '.jpeg'))]
 
     return render_template('index.html', image_files=image_files)
 
