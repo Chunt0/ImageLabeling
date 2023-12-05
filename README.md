@@ -11,5 +11,3 @@
 - Keep labeling until the monkey is reached. Once reached all renamed files should be in completed along with the metadata.csv containing all your labeling.
 - Copy the completed file to where ever you might need it
 - Clean out the target adn completed directories.
-
-# ImageLabeling
