@@ -14,6 +14,7 @@
     </div>
 
     <button id="nextButton">Next Image</button>
+    <button id="skipButton">Skip Image</button>
 
     <script>
         const imagePaths = {{ image_files | tojson | safe }}; // Replace with your image file paths
@@ -66,10 +67,24 @@
             }
         }
 
-
+        function skipImage() {
+            currentIndex = (currentIndex + 1);
+            if (currentIndex < imagePaths.length) {
+                loadCurrentImage();
+                // Reset the caption entry box and focus on it
+                document.getElementById("imageCaption").value = "";
+                document.getElementById("imageCaption").focus();
+            } else {
+                // Once all the images have been seen and labeled, 
+                // build out the imagefolder with the new metadata
+                currentImage.src = './static/img/chimp.jpg'
+            }
+        }
         // Add an event listener to the Next Image button
         const nextButton = document.getElementById("nextButton");
+        const skipButton = document.getElementById("skipButton")
         nextButton.addEventListener("click", nextImage);
+        skipButton.addEventListener("click", skipImage);
 
         // Add an event listener to the input element to detect Enter key press
         document.getElementById("imageCaption").addEventListener("keyup", function(event) {
