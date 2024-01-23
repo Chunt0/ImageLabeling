@@ -1,36 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta tags for character set and responsiveness -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Viewer</title>
 </head>
 <body>
+    <!-- Image Container for displaying images -->
     <div id="imageContainer">
         <img id="current-image" src="" height="800" alt="Image">
     </div>
+
+    <!-- Display Container for showing image path -->
     <div id="displayContainer">
         <input type="text" id="image-path" size="75" style="font-size: 18px;" readonly>
     </div>
+
+    <!-- Input Container for entering image caption -->
     <div id="inputContainer">
         <input type="text" id="image-caption" size="75" style="font-size: 18px;">
     </div>
+
+    <!-- Notes Container for additional image notes -->
     <div id="notesContainer">
         <input type="text" id="image-notes" size="75" style="font-size: 18px;">
     </div>
 
+    <!-- Button to move to the next image -->
     <button id="next-button">Next Image</button>
 
     <script>
+        // Variables for image paths, captions, and UI elements
         const imagePaths = {{ image_files | tojson | safe }}; 
-        const captionPaths = {{ caption_files | tojson | safe}};
-        const captions = {{ captions | tojson | safe}};
+        const captionPaths = {{ caption_files | tojson | safe }};
+        const captions = {{ captions | tojson | safe }};
         const currentImage = document.getElementById("current-image");
         const userCaption = document.getElementById("image-caption");
         const userNote = document.getElementById("image-notes");
         const nextButton = document.getElementById("next-button");
         let currentIndex = 0;
 
+        // Function to load the current image and its caption
         function loadCurrentImage() {
             document.getElementById("image-path").value = imagePaths[currentIndex];
             document.getElementById("image-caption").value = captions[currentIndex];
@@ -39,7 +50,9 @@
             document.getElementById("image-caption").focus();
         }
 
+        // Function to handle moving to the next image
         function nextImage() {
+            // Extracting and preparing data for moving the image
             const srcPathImg = imagePaths[currentIndex];
             let currentFile = srcPathImg.match(/\d+/);
             const dstPathImg = `./static/completed/${currentFile}.png`;
@@ -56,6 +69,7 @@
                 notes: notes
             };
 
+            // Fetch request to move the image and caption
             fetch('/move_image', {
                 method: 'POST',
                 headers: {
@@ -81,8 +95,8 @@
                 console.error('Error:', error);
             });
         }
-            
-
+        
+        // Event listeners for the Next button and Enter keypress
         nextButton.addEventListener("click", nextImage);
         userCaption.addEventListener("keyup", function(event) {
             if (event.key === "Enter") {
@@ -95,6 +109,7 @@
             }
         });
 
+        // Initialize the viewer with the first image
         loadCurrentImage();
     </script>
 
