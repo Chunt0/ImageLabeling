@@ -2,10 +2,10 @@
 ## Easy-Peazy
 --------------
 - Clone this repo
-- Create two folders inside of static/img/
+- Create two folders inside of static/
     - one named 'target'
     - the second name 'completed'
-- Place all jpg and png files you want to caption in static/img/target/
+- Place all jpg and png files you want to caption in static/target/
 - While your pwd is in the project root directory run this:
 `python3 app.py`
 - Keep labeling until the monkey is reached. Once reached all renamed files should be in completed along with the metadata.csv containing all your labeling.
