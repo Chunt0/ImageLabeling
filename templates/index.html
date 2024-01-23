@@ -7,108 +7,94 @@
 </head>
 <body>
     <div id="imageContainer">
-        <img id="currentImage" src="" height="600" alt="Image">
+        <img id="current-image" src="" height="800" alt="Image">
+    </div>
+    <div id="displayContainer">
+        <input type="text" id="image-path" size="75" style="font-size: 18px;" readonly>
     </div>
     <div id="inputContainer">
-        <input type="text" id="imageCaption" placeholder="Caption this image...">
+        <input type="text" id="image-caption" size="75" style="font-size: 18px;">
+    </div>
+    <div id="notesContainer">
+        <input type="text" id="image-notes" size="75" style="font-size: 18px;">
     </div>
 
-    <button id="nextButton">Next Image</button>
-    <button id="skipButton">Skip Image</button>
+    <button id="next-button">Next Image</button>
 
     <script>
-        const imagePaths = {{ image_files | tojson | safe }}; // Replace with your image file paths
+        const imagePaths = {{ image_files | tojson | safe }}; 
+        const captionPaths = {{ caption_files | tojson | safe}};
+        const captions = {{ captions | tojson | safe}};
+        const currentImage = document.getElementById("current-image");
+        const userCaption = document.getElementById("image-caption");
+        const userNote = document.getElementById("image-notes");
+        const nextButton = document.getElementById("next-button");
         let currentIndex = 0;
-        const currentImage = document.getElementById("currentImage");
-        const userCaption = document.getElementById("imageCaption");
-        const metadata = [];
 
-        // Function to load the current image
         function loadCurrentImage() {
-            console.log(imagePaths[currentIndex]);
+            document.getElementById("image-path").value = imagePaths[currentIndex];
+            document.getElementById("image-caption").value = captions[currentIndex];
+            document.getElementById("image-notes").value = "";
             currentImage.src = imagePaths[currentIndex];
+            document.getElementById("image-caption").focus();
         }
 
-        // Function to navigate to the next image
         function nextImage() {
-            const srcPath = imagePaths[currentIndex];
-            const dstPath = `./static/img/completed/${currentIndex}.jpg`;
-            const caption = document.getElementById("imageCaption").value;
-            const metadataObj = {
-                srcPath: srcPath,
-                dstPath: dstPath,
-                caption: caption
+            const srcPathImg = imagePaths[currentIndex];
+            let currentFile = srcPathImg.match(/\d+/);
+            const dstPathImg = `./static/completed/${currentFile}.png`;
+            const srcPathCap = captionPaths[currentIndex];
+            const dstPathCap = `./static/completed/${currentFile}.txt`;
+            const caption = document.getElementById("image-caption").value;
+            const notes = document.getElementById("image-notes").value;
+            const metadata = {
+                srcPathImg: srcPathImg,
+                dstPathImg: dstPathImg,
+                srcPathCap: srcPathCap,
+                dstPathCap: dstPathCap,
+                caption: caption,
+                notes: notes
             };
-            metadata.push(metadataObj)
 
-            currentIndex = (currentIndex + 1);
-            if (currentIndex < imagePaths.length) {
-                loadCurrentImage();
-                // Reset the caption entry box and focus on it
-                document.getElementById("imageCaption").value = "";
-                document.getElementById("imageCaption").focus();
-            } else {
-                // Once all the images have been seen and labeled, 
-                // build out the imagefolder with the new metadata
-                currentImage.src = './static/img/chimp.jpg'
-                fetch('/build_imagefolder',{
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(metadata)
-                }).then(response => {
-                    if (response.ok) {
-                        console.log("Image folder updated.");
-                    } else {
-                        console.error("Failed to update image folder.")
-                    }
-                })
-            }
+            fetch('/move_image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(metadata)
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Image and Caption moved to completed");
+                } else {
+                    console.error("Failed to move Image and Caption");
+                }
+            })
+            .then(() => {
+                currentIndex = (currentIndex + 1);
+                if (currentIndex < imagePaths.length) {
+                    loadCurrentImage();
+                } else {
+                    currentImage.src = './static/chimp.jpg';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
+            
 
-        function skipImage() {
-            currentIndex = (currentIndex + 1);
-            if (currentIndex < imagePaths.length) {
-                loadCurrentImage();
-                // Reset the caption entry box and focus on it
-                document.getElementById("imageCaption").value = "";
-                document.getElementById("imageCaption").focus();
-            } else {
-                // Once all the images have been seen and labeled, 
-                // build out the imagefolder with the new metadata
-                currentImage.src = './static/img/chimp.jpg'
-                fetch('/build_imagefolder',{
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(metadata)
-                }).then(response => {
-                    if (response.ok) {
-                        console.log("Image folder updated.");
-                    } else {
-                        console.error("Failed to update image folder.")
-                    }
-                })
-            }
-        }
-        // Add an event listener to the Next Image button
-        const nextButton = document.getElementById("nextButton");
-        const skipButton = document.getElementById("skipButton")
         nextButton.addEventListener("click", nextImage);
-        skipButton.addEventListener("click", skipImage);
-
-        // Add an event listener to the input element to detect Enter key press
-        document.getElementById("imageCaption").addEventListener("keyup", function(event) {
+        userCaption.addEventListener("keyup", function(event) {
             if (event.key === "Enter") {
-                // Trigger the button's click event when Enter is pressed
-                document.getElementById("nextButton").click();
+                document.getElementById("next-button").click();
+            }
+        });
+        userNote.addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                document.getElementById("next-button").click();
             }
         });
 
-        // Initialize with the first image
-        document.getElementById("imageCaption").focus();
         loadCurrentImage();
     </script>
 

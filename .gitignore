@@ -1,2 +1,3 @@
-static/img/target/*
-static/img/completed/*
+static/target/*
+static/completed/*
+notes.txt
