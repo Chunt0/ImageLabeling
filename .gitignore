@@ -1,3 +1,5 @@
 static/target/*
 static/completed/*
+rename/old/*
+rename/new/*
 notes.txt
