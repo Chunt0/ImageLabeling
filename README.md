@@ -2,6 +2,8 @@
 ## Easy-Peazy
 --------------
 - Clone this repo
+- create a folder named old/
+- place images to be renamed in ./old/ -> run rename.py
 - Create two folders inside of static/
     - one named 'target'
     - the second name 'completed'
@@ -12,4 +14,3 @@
 - Copy the completed file to where ever you might need it
 - Clean out the target adn completed directories.
 
-- To use rename.py: place images to be renamed in ./old/ -> run program
