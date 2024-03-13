@@ -2,6 +2,7 @@
 ## Easy-Peazy
 --------------
 - Clone this repo
+- `cd ImageLabeling`
 - create a folder named old/
 - place images to be renamed in ./old/ -> run rename.py
 - Create two folders inside of static/
