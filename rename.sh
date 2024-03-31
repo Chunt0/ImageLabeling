@@ -1,16 +1,25 @@
 #!/bin/bash
 
-# Ensure the user has provided the folder path
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 folder_path"
-    exit 1
-fi
+folder_path="./static/target"
 
 # Navigate to the folder containing the images
-cd "$1" || exit
+cd "$folder_path" || exit
 
 # Counter for renaming files
 count=1
+
+# Loop through each image file in the folder
+for file in *.{webp, WEBP}; do
+    # Check if the file is a regular file and ends with ".webp"
+    if [ -f "$image_file" ] && [[ "$image_file" == *.webp ]]; then
+        # Get the filename without extension
+        filename_no_ext="${image_file%.*}"
+        # Convert the webp image to PNG
+        convert "$image_file" "${filename_no_ext}.png"
+        # Remove the original webp file
+        rm "$image_file"
+    fi
+done
 
 # Loop through each image file in the folder
 for file in *.{jpg,JPG,jpeg,JPEG,png,PNG}; do
