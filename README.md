@@ -1,20 +1,59 @@
-# ImageLabeling
-## Easy-Peazy
---------------
-- Create a folder for your dataset: lastname-firstname
-- `cd lastname-firstname`
-- `git clone git@github.com:Chunt0/ImageLabeling.git`
-- Move all images into `./static/target`
-- Make sure you are in `./lastname-firstname` again
-- `mv ImageLabeling/* ./`
-- `rm -rf ImageLabeling/`
-- `./handle_smalls.sh`
-- Handle the smalls! Likely this will mean starting a ComfyUi session, drop the chimp.png photo into the ComfyUI workspace to load up the batch upsampling work flow
-- Get the full path to the static/smalls directory and use that to begining batch upsampling. Run automatic queue in Comfy.
-- Move the upsampled images into ./static/target
-- Back in the project root directory
-- `./target_prep.sh`
-- `python3 app.py`
-- Begin labeling! You should be able to leave at any time and return right where you left off. If you do leave, remember to turn off your app (ctrl+c in the terminal)
-- Keep labeling until the monkey is reached. Once reached all renamed files should be in completed folder. All notes are in notes.txt in the project root folder.
+# ImageLabeling Project Guide
 
+Welcome to the ImageLabeling project! This guide will help you set up your environment and start labeling your image dataset efficiently. Follow these instructions to ensure a smooth workflow.
+
+## Initial Setup
+
+1. **Prepare Your Dataset Folder:**
+   - Create a new folder named using the pattern `lastname-firstname`.
+   - Navigate into your newly created folder: `cd lastname-firstname`.
+
+2. **Clone the Repository:**
+   - Clone the ImageLabeling repository into your dataset folder:
+     ```bash
+     git clone git@github.com:Chunt0/ImageLabeling.git
+     ```
+
+3. **Organize Your Images:**
+   - Move all your images into the `./static/target` directory within the cloned repository.
+   - Ensure you're in the `./lastname-firstname` directory before proceeding.
+
+4. **Integrate the Cloned Repository:**
+   - Move all contents from the `ImageLabeling` directory to your dataset folder:
+     ```bash
+     mv ImageLabeling/* ./
+     ```
+   - Remove the now-empty `ImageLabeling` directory:
+     ```bash
+     rm -rf ImageLabeling/
+     ```
+
+## Image Processing
+
+1. **Handle Small Images:**
+   - Execute `./handle_smalls.sh` to sort out smaller images.
+   - For small images, initiate a ComfyUi session and use the `chimp.png` photo in the ComfyUI workspace to start the batch upsampling workflow.
+
+2. **Upsample Images:**
+   - Determine the full path to the `static/smalls` directory for batch upsampling.
+   - Utilize the automatic queue feature in ComfyUI for efficient processing.
+   - Move the upsampled images back into `./static/target`.
+
+## Image Labeling
+
+1. **Prepare Target Images:**
+   - Run `./target_prep.sh` from the project root directory to prepare images for labeling.
+
+2. **Start Labeling Application:**
+   - Launch the labeling application:
+     ```bash
+     python3 app.py
+     ```
+   - You can exit the application at any time with `CTRL+C` and resume where you left off.
+
+3. **Complete Labeling:**
+   - Continue labeling images until you reach the designated "monkey" marker.
+   - Upon completion, all renamed files will be moved to the `completed` folder.
+   - Any notes taken during the process should be saved in `notes.txt` in the project root folder.
+
+Thank you for contributing to the ImageLabeling project. Happy labeling!
