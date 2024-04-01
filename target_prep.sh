@@ -1,4 +1,6 @@
 #!/bin/bash
+# This script should be used to format images for a fresh labeling run.
+# This will remove any existing txt files in this folder.
 
 folder_path="./static/target"
 
@@ -15,6 +17,11 @@ for file in *.{webp, WEBP}; do
         # Remove the original webp file
         rm "$file"
     fi
+done
+
+# Remove any txt files
+for file in *.{txt}; do
+    rm "$file"
 done
 
 # Loop through each image file in the folder
