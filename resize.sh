@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the folder path containing the images
-folder_path="/home/chunt/Desktop/juice-cc-ye-bdsm/static/target"
+folder_path="./static/target"
 
 # Loop through each image file in the folder
 for image_file in "$folder_path"/*; do
