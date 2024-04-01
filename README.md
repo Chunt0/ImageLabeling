@@ -1,6 +1,6 @@
 # ImageLabeling Project Guide
 
-Welcome to the ImageLabeling project! This guide will help you set up your environment and start labeling your image dataset efficiently. Follow these instructions to ensure a smooth workflow.
+Follow these instructions to ensure a smooth workflow.
 
 ## Initial Setup
 
@@ -55,5 +55,3 @@ Welcome to the ImageLabeling project! This guide will help you set up your envir
    - Continue labeling images until you reach the designated "monkey" marker.
    - Upon completion, all renamed files will be moved to the `completed` folder.
    - Any notes taken during the process should be saved in `notes.txt` in the project root folder.
-
-Thank you for contributing to the ImageLabeling project. Happy labeling!
