@@ -20,7 +20,7 @@ for file in *.{webp, WEBP}; do
 done
 
 # Remove any txt files
-for file in *.{txt}; do
+for file in *.txt; do
     rm "$file"
 done
 
