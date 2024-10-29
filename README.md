@@ -14,11 +14,7 @@ Follow these instructions to ensure a smooth workflow.
      git clone git@github.com:Chunt0/ImageLabeling.git
      ```
 
-3. **Organize Your Images:**
-   - Move all your images into the `./static/target` directory within the cloned repository.
-   - Ensure you're in the `./lastname-firstname` directory before proceeding.
-
-4. **Integrate the Cloned Repository:**
+3. **Integrate the Cloned Repository:**
    - Move all contents from the `ImageLabeling` directory to your dataset folder:
      ```bash
      mv ImageLabeling/* ./
@@ -28,16 +24,8 @@ Follow these instructions to ensure a smooth workflow.
      rm -rf ImageLabeling/
      ```
 
-## Image Processing
-
-1. **Handle Small Images:**
-   - Execute `./handle_smalls.sh` to sort out smaller images.
-   - For small images, initiate a ComfyUi session and use the `chimp.png` photo in the ComfyUI workspace to start the batch upsampling workflow.
-
-2. **Upsample Images:**
-   - Determine the full path to the `static/smalls` directory for batch upsampling.
-   - Utilize the automatic queue feature in ComfyUI for efficient processing.
-   - Move the upsampled images back into `./static/target`.
+4. **Move Images**
+   - Move all images you want to label into `./static/target/`
 
 ## Image Labeling
 
