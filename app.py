@@ -2,59 +2,71 @@ from flask import Flask, render_template, request, jsonify
 import os
 import shutil
 
-# Initialize Flask app
 app = Flask(__name__)
+
+TARGET_BASE = './static/target/'
+COMPLETED_BASE = './static/completed/'
 
 @app.route('/')
 def index():
-    # Route for the main page
-    # It lists image files and corresponding captions from the 'img' folder
-    image_folder = './static/target/'
-    
-    # Custom sorting function to sort files based on numerical order
-    def sort_key(x): return int(x.split('/')[-1].split('.')[0])
+    # List subdirectories in target folder for selection
+    subdirs = [name for name in os.listdir(TARGET_BASE) if os.path.isdir(os.path.join(TARGET_BASE, name))]
+    return render_template('index.html', subdirs=subdirs)
 
-    # List and sort image files
-    image_files = [image_folder + f for f in os.listdir(image_folder) if f.endswith(('.jpg', '.png', '.jpeg'))]
-    image_files = sorted(image_files, key=sort_key)
+@app.route('/get_media/<subdir>')
+def get_media(subdir):
+    target_folder = os.path.join(TARGET_BASE, subdir)
+    all_files = os.listdir(target_folder)
+    media_files = []
 
-    # List and sort caption files
-    caption_files = [image_folder + f for f in os.listdir(image_folder) if f.endswith(".txt")]
-    caption_files = sorted(caption_files, key=sort_key)
+    for f in all_files:
+        if f.endswith(('.jpg', '.png', '.jpeg', '.mp4')):
+            media_files.append(target_folder + '/' + f)
 
-    # Read captions from files
+    # Sort based on numeric prefix
+    def get_sort_index(filename):
+        basename = os.path.basename(filename)
+        number_part = basename.split('.')[0]
+        try:
+            return int(number_part)
+        except:
+            return 0
+
+    media_files = sorted(media_files, key=get_sort_index)
+
+    # Load captions
+    caption_files = []
+    for f in all_files:
+        if f.endswith('.txt'):
+            caption_files.append(os.path.join(target_folder, f))
     captions = []
-    for caption_path in caption_files:
-        with open(caption_path) as f:
+
+    for cap_path in caption_files:
+        with open(cap_path) as f:
             captions.append(f.readline().strip())
 
-    # Render the index page with the lists of image and caption files
-    return render_template('index.html', image_files=image_files, caption_files=caption_files, captions=captions)
+    return jsonify({'media_files': media_files, 'captions': captions})
 
-@app.route('/move_image', methods=['POST'])
-def move_image():
-    # Route to handle the moving of images and updating captions
+@app.route('/move_media', methods=['POST'])
+def move_media():
     data = request.get_json()
-    
-    # Move image and caption files to new destination
-    shutil.move(data["srcPathImg"], data["dstPathImg"])
-    shutil.move(data["srcPathCap"], data["dstPathCap"])
-
-    # Overwrite the destination caption file with the new caption
-    with open(data["dstPathCap"], "w") as f:
-        f.write(data["caption"])
-
-    # Append notes to a notes.txt file
-    with open("./notes.txt", "a") as f:
-        f.write(f"{data['dstPathImg']} : {data['notes']}\n")
-
     try:
-        # Respond with success message if no errors
-        return jsonify({'message': 'Image moved successfully'}), 200  # HTTP 200 OK
-    except Exception as e:
-        # Handle exception and return an error response
-        return jsonify({'error': str(e)}), 500  # HTTP 500 Internal Server Error
+        # Move media file
+        shutil.move(data["srcPathMedia"], data["dstPathMedia"])
+        # Move caption file
+        shutil.move(data["srcPathCap"], data["dstPathCap"])
 
-# Run the Flask app
+        # Save caption
+        with open(data["dstPathCap"], "w") as f:
+            f.write(data["caption"])
+
+        # Save notes
+        with open("./notes.txt", "a") as f:
+            f.write(f"{data['dstPathMedia']} : {data['notes']}\n")
+
+        return jsonify({'message': 'Media moved successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)

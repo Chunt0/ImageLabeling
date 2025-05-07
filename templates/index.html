@@ -1,117 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Meta tags for character set and responsiveness -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Viewer</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nested Folder Media Labeler</title>
 </head>
 <body>
-    <!-- Image Container for displaying images -->
-    <div id="imageContainer">
-        <img id="current-image" src="" height="800" alt="Image">
-    </div>
+<h2>Select Folder to Label:</h2>
+<select id="folderSelect">
+  <option value="">--Select Folder--</option>
+  {% for subdir in subdirs %}
+    <option value="{{ subdir }}">{{ subdir }}</option>
+  {% endfor %}
+</select>
 
-    <!-- Display Container for showing image path -->
-    <div id="displayContainer">
-        <input type="text" id="image-path" size="75" style="font-size: 18px;" readonly>
-    </div>
+<button id="loadMediaBtn">Load Media</button>
 
-    <!-- Input Container for entering image caption -->
-    <div id="inputContainer">
-        <input type="text" id="image-caption" size="75" style="font-size: 18px;">
-    </div>
+<!-- Media Display Container -->
+<div id="mediaContainer" style="text-align:center; margin-top:20px;">
+    <img id="current-media" src="" height="800" alt="Media" style="display:none;">
+    <video id="current-video" height="800" controls autoplay loop muted style="display:none;">
+        <source id="video-source" src="" type="video/mp4"/>
+        Your browser does not support the video tag.
+    </video>
+</div>
 
-    <!-- Notes Container for additional image notes -->
-    <div id="notesContainer">
-        <input type="text" id="image-notes" size="75" style="font-size: 18px;">
-    </div>
+<!-- Other Controls -->
+<div id="displayContainer">
+    <input type="text" id="media-path" size="75" style="font-size: 18px;" readonly>
+</div>
+<div id="inputContainer">
+    <input type="text" id="media-caption" size="75" style="font-size: 18px;">
+</div>
+<div id="notesContainer">
+    <input type="text" id="media-notes" size="75" style="font-size: 18px;">
+</div>
+<button id="next-button">Next Media</button>
 
-    <!-- Button to move to the next image -->
-    <button id="next-button">Next Image</button>
+<script>
+const mediaFiles = [];
+const captions = [];
+let currentIndex = 0;
+let currentFolder = "";
 
-    <script>
-        // Variables for image paths, captions, and UI elements
-        const imagePaths = {{ image_files | tojson | safe }}; 
-        const captionPaths = {{ caption_files | tojson | safe }};
-        const captions = {{ captions | tojson | safe }};
-        const currentImage = document.getElementById("current-image");
-        const userCaption = document.getElementById("image-caption");
-        const userNote = document.getElementById("image-notes");
-        const nextButton = document.getElementById("next-button");
-        let currentIndex = 0;
+// Elements
+const folderSelect = document.getElementById('folderSelect');
+const loadMediaBtn = document.getElementById('loadMediaBtn');
 
-        // Function to load the current image and its caption
-        function loadCurrentImage() {
-            document.getElementById("image-path").value = imagePaths[currentIndex];
-            document.getElementById("image-caption").value = captions[currentIndex];
-            document.getElementById("image-notes").value = "";
-            currentImage.src = imagePaths[currentIndex];
-            document.getElementById("image-caption").focus();
-        }
+const mediaPathInput = document.getElementById("media-path");
+const captionInput = document.getElementById("media-caption");
+const notesInput = document.getElementById("media-notes");
+const nextButton = document.getElementById("next-button");
 
-        // Function to handle moving to the next image
-        function nextImage() {
-            // Extracting and preparing data for moving the image
-            const srcPathImg = imagePaths[currentIndex];
-            let currentFile = srcPathImg.match(/\d+/);
-            const dstPathImg = `./static/completed/${currentFile}.png`;
-            const srcPathCap = captionPaths[currentIndex];
-            const dstPathCap = `./static/completed/${currentFile}.txt`;
-            const caption = document.getElementById("image-caption").value;
-            const notes = document.getElementById("image-notes").value;
-            const metadata = {
-                srcPathImg: srcPathImg,
-                dstPathImg: dstPathImg,
-                srcPathCap: srcPathCap,
-                dstPathCap: dstPathCap,
-                caption: caption,
-                notes: notes
-            };
+const currentMediaImg = document.getElementById("current-media");
+const currentMediaVideo = document.getElementById("current-video");
+const videoSource = document.getElementById("video-source");
 
-            // Fetch request to move the image and caption
-            fetch('/move_image', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(metadata)
-            }).then(response => {
-                if (response.ok) {
-                    console.log("Image and Caption moved to completed");
-                } else {
-                    console.error("Failed to move Image and Caption");
-                }
-            })
-            .then(() => {
-                currentIndex = (currentIndex + 1);
-                if (currentIndex < imagePaths.length) {
-                    loadCurrentImage();
-                } else {
-                    currentImage.src = './static/chimp.png';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-        
-        // Event listeners for the Next button and Enter keypress
-        nextButton.addEventListener("click", nextImage);
-        userCaption.addEventListener("keyup", function(event) {
-            if (event.key === "Enter") {
-                document.getElementById("next-button").click();
-            }
+// Load media for selected folder
+loadMediaBtn.addEventListener('click', () => {
+    currentFolder = folderSelect.value;
+    if (!currentFolder) {
+        alert("Please select a folder");
+        return;
+    }
+    fetch(`/get_media/${currentFolder}`)
+        .then(res => res.json())
+        .then(data => {
+            mediaFiles.length = 0;
+            mediaFiles.push(...data.media_files);
+            captions.length = 0;
+            captions.push(...data.captions);
+            currentIndex = 0;
+            loadMedia();
         });
-        userNote.addEventListener("keyup", function(event) {
-            if (event.key === "Enter") {
-                document.getElementById("next-button").click();
-            }
-        });
+});
 
-        // Initialize the viewer with the first image
-        loadCurrentImage();
-    </script>
+// Function to detect video
+function isVideo(filePath) {
+    return filePath.toLowerCase().endsWith('.mp4');
+}
 
+function loadMedia() {
+    if (mediaFiles.length === 0 || currentIndex >= mediaFiles.length) {
+        // No more files, display placeholder image
+        currentMediaImg.style.display = "block";
+        currentMediaVideo.style.display = "none";
+        currentMediaImg.src = "./static/chimp.png"; // path to your default image
+        document.getElementById("media-path").value = "No Media Available";
+        captionInput.value = "";
+        notesInput.value = "";
+        return;
+    }
+    const mediaPath = mediaFiles[currentIndex];
+    mediaPathInput.value = mediaPath;
+    captionInput.value = captions[currentIndex];
+    notesInput.value = "";
+
+    if (isVideo(mediaPath)) {
+        // Show video
+        currentMediaVideo.style.display = "block";
+        currentMediaImg.style.display = "none";
+        document.getElementById("video-source").src = mediaPath;
+        currentMediaVideo.load();
+        currentMediaVideo.play().catch(e => console.log("Autoplay might be blocked", e));
+    } else {
+        // Show image
+        currentMediaImg.style.display = "block";
+        currentMediaVideo.style.display = "none";
+        currentMediaImg.src = mediaPath;
+    }
+}
+
+function nextMedia() {
+    if (!mediaFiles.length || currentIndex >= mediaFiles.length) return;
+
+    const srcPathMedia = mediaFiles[currentIndex];
+    const filename = srcPathMedia.split('/').pop();
+    const numberMatch = filename.match(/\d+/);
+    const fileNumber = numberMatch ? numberMatch[0] : 'unknown';
+
+    // Destination paths in completed
+    const dstFolder = `./static/completed/${currentFolder}`;
+    if (!fsExists(dstFolder)) {
+        // Create if needed
+        fetch('/create_folder', {method: 'POST', body: JSON.stringify({folder: dstFolder})});
+    }
+    const ext = isVideo(srcPathMedia) ? '.mp4' : '.png'; 
+    const dstPathMedia = `${dstFolder}/${fileNumber}${ext}`;
+    const srcPathCap = srcPathMedia.replace(/\.\w+$/, '.txt');
+    const dstPathCap = `${dstFolder}/${fileNumber}.txt`;
+
+    // Send move request
+    fetch('/move_media', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            srcPathMedia,
+            dstPathMedia,
+            srcPathCap,
+            dstPathCap,
+            caption: captionInput.value,
+            notes: notesInput.value
+        })
+    }).then(res => res.json())
+      .then(res => {
+        if (res.message) console.log(res.message);
+        // Next media
+        currentIndex++;
+        if (currentIndex < mediaFiles.length) {
+            loadMedia();
+        } else {
+            alert("All media processed");
+        }
+    });
+}
+
+// Event listeners
+document.getElementById("next-button").addEventListener("click", nextMedia);
+captionInput.addEventListener("keyup", e => { if (e.key === "Enter") nextMedia(); });
+notesInput.addEventListener("keyup", e => { if (e.key === "Enter") nextMedia(); });
+
+function fsExists(path) {
+    // since client-side JS can't check filesystem, handle server-side creation of folder if necessary
+    // For simplicity, assume folder already exists or handled server-side
+    return true;
+}
+// Initialize with an empty list
+</script>
 </body>
 </html>
